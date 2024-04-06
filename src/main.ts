@@ -32,6 +32,7 @@ class Simulation {
                 this.grid[y].push(0);
             }
         }
+        this.grid[1][1] = 1
     }
     // this function should draw the grid.
     render(canvas: Canvas) {
@@ -47,11 +48,11 @@ class Simulation {
                 if (this.grid[y][x] == 1) {
                     canvas.fillRectangle(
                         (x * this.cellsize - canvas.width / 2) + this.cellsize / 2,
-                        (y * this.cellsize - canvas.height / 2) + this.cellsize / 2, this.cellsize, this.cellsize, "black")
+                        (0 + canvas.height / 2) - (y * this.cellsize) - this.cellsize / 2, this.cellsize, this.cellsize, "black")
                 } else {
                     canvas.strokeRectangle(
                         (x * this.cellsize - canvas.width / 2) + this.cellsize / 2,
-                        (y * this.cellsize - canvas.height / 2) + this.cellsize / 2, this.cellsize, this.cellsize, "black")
+                        (0 + canvas.height / 2) - (y * this.cellsize) - this.cellsize / 2, this.cellsize, this.cellsize, "black")
                 }
             }
         }
@@ -62,10 +63,13 @@ class Simulation {
         // we are going to create functions, but then wait until the end to use them
 
         let functions: (() => void)[] = []
-        // ORRR the = 1; .length -1s are wrong 
-        for (let y = 1; y < this.grid.length - 1; y++) {
-            for (let x = 1; x < this.grid[y].length - 1; x++) {
-                // either this is wrong: v
+        console.log("TEST")
+        console.log(this.grid[1][1])
+        console.log("Grid")
+        for (let y = 1; y < 2; y++) {
+            for (let x = 1; x < 4; x++) {
+                console.log("x" + x)
+                console.log("y" + y)
                 let neighbors = {
                     topLeft: this.grid[y - 1][x - 1],
                     topMiddle: this.grid[y - 1][x],
@@ -79,17 +83,15 @@ class Simulation {
 
                 let liveCellCount = Object.values(neighbors).reduce(
                     (acc: number, val: 0 | 1) => acc + val, 0)
+                console.log("neighbors: ", neighbors)
+                console.log("liveCellCount" + liveCellCount)
 
                 if (liveCellCount < 2)
                     functions.push(() => this.grid[y][x] = 0)
-                if (liveCellCount > 3)
+                else if (liveCellCount > 3)
                     functions.push(() => this.grid[y][x] = 0)
-                if (liveCellCount == 3)
+                else if (liveCellCount == 3)
                     functions.push(() => this.grid[y][x] = 1)
-
-                // }
-                // liveCellCount = this.grid[y + 1][x + 1] + this.grid[y][x + 1] + this.grid[y + 1][x]
-
             }
             for (const fn of functions) {
                 fn()
@@ -99,12 +101,28 @@ class Simulation {
     }
 
     changecell(positionX: number, positionY: number) {
+        console.log("positionX: ", positionX + canvas.width / 2)
+        console.log(this.cellsize)
+        const cellX = (positionX + canvas.width / 2) % this.cellsize
+        console.log("cellX: " + cellX)
         positionX = (positionX + canvas.width / 2) / this.cellsize;
         positionY = (positionY + canvas.height / 2) / this.cellsize;
         let cellXNumber = Math.ceil(positionX) - 1
         let cellYNumber = Math.ceil(positionY) - 1
+        // console.log("X" + cellXNumber);
+        // console.log("Y" + cellYNumber);
         this.grid[cellYNumber][cellXNumber] = this.grid[cellYNumber][cellXNumber] === 0 ? 1 : 0
 
+    }
+
+    getCellValue(positionY: number, positionX: number) {
+        if (positionY >= 0 && positionX >= 0) {
+            // console.log("YY" + positionY);
+            // console.log("XX" + positionX);
+            return this.grid[positionY] ? this.grid[positionY][positionX] : 0
+        } else {
+            return 0
+        }
     }
 }
 
@@ -112,7 +130,7 @@ class Simulation {
 
 
 
-const sim = new Simulation(canvas.width, canvas.height, 60)
+const sim = new Simulation(canvas.width, canvas.height, 200)
 
 let pause: boolean = true
 let clickInterval: boolean = true
@@ -148,6 +166,7 @@ gameloop(() => {
         if (count % 25 == 0) {
             sim.applyRules()
             console.log("applyRules")
+            throw new Error("STOP!")
         }
     }
     // funny way to make the loop take longer.
