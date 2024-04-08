@@ -32,7 +32,7 @@ class Simulation {
                 this.grid[y].push(0);
             }
         }
-        this.grid[1][1] = 1
+        // this.grid[1][1] = 1
     }
     // this function should draw the grid.
     render(canvas: Canvas) {
@@ -66,43 +66,46 @@ class Simulation {
         console.log("TEST")
         console.log(this.grid[1][1])
         console.log("Grid")
-        for (let y = 1; y < 2; y++) {
-            for (let x = 1; x < 4; x++) {
+        for (let y = 0; y < this.grid.length; y++) {
+            for (let x = 0; x < this.grid[y].length; x++) {
                 console.log("x" + x)
                 console.log("y" + y)
                 let neighbors = {
-                    topLeft: this.grid[y - 1][x - 1],
-                    topMiddle: this.grid[y - 1][x],
-                    topRight: this.grid[y - 1][x + 1],
-                    middleLeft: this.grid[y][x - 1],
-                    middleRight: this.grid[y][x + 1],
-                    bottomLeft: this.grid[y + 1][x - 1],
-                    bottomMiddle: this.grid[y + 1][x],
-                    bottomRight: this.grid[y + 1][x + 1]
+                    topLeft: this.getCellValue(y - 1, x - 1),
+                    topMiddle: this.getCellValue(y - 1, x),
+                    topRight: this.getCellValue(y - 1, x + 1),
+                    middleLeft: this.getCellValue(y, x - 1),
+                    middleRight: this.getCellValue(y, x + 1),
+                    bottomLeft: this.getCellValue(y + 1, x - 1),
+                    bottomMiddle: this.getCellValue(y + 1, x),
+                    bottomRight: this.getCellValue(y + 1, x + 1)
                 }
 
                 let liveCellCount = Object.values(neighbors).reduce(
                     (acc: number, val: 0 | 1) => acc + val, 0)
-                console.log("neighbors: ", neighbors)
-                console.log("liveCellCount" + liveCellCount)
+                // console.log("XXX", "X:", x, "Y:", y)
+                // console.log("neighbors: ", neighbors)
+                // console.log("liveCellCount" + liveCellCount)
 
                 if (liveCellCount < 2)
-                    functions.push(() => this.grid[y][x] = 0)
+                    functions.push(() => { console.log("AAA", "X:", x, "Y:", y); this.grid[y][x] = 0 })
                 else if (liveCellCount > 3)
-                    functions.push(() => this.grid[y][x] = 0)
+                    functions.push(() => { console.log("BBB", "X:", x, "Y:", y); this.grid[y][x] = 0 })
                 else if (liveCellCount == 3)
-                    functions.push(() => this.grid[y][x] = 1)
+                    functions.push(() => { console.log("CCC", "X:", x, "Y:", y); this.grid[y][x] = 1 })
+
             }
-            for (const fn of functions) {
-                fn()
-            }
+        }
+        for (const fn of functions) {
+            fn()
         }
 
     }
 
     changecell(positionX: number, positionY: number) {
         console.log("positionX: ", positionX + canvas.width / 2)
-        console.log(this.cellsize)
+        console.log("positionY: ", positionY + canvas.height / 2)
+        // console.log(this.cellsize)
         const cellX = (positionX + canvas.width / 2) % this.cellsize
         console.log("cellX: " + cellX)
         positionX = (positionX + canvas.width / 2) / this.cellsize;
@@ -157,16 +160,16 @@ gameloop(() => {
 
     if (mouse.left && clickInterval) {
         clickInterval = false;
-        sim.changecell(mouse.x, mouse.y)
+        sim.changecell(mouse.x, -mouse.y)
         setTimeout(() => { clickInterval = true }, 100);
     }
 
 
     if (!pause) {
-        if (count % 25 == 0) {
+        if (count % 50 == 0) {
             sim.applyRules()
             console.log("applyRules")
-            throw new Error("STOP!")
+            // throw new Error("STOP!")
         }
     }
     // funny way to make the loop take longer.
